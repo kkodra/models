@@ -44,7 +44,7 @@ NUM_LABELS = 10
 VALIDATION_SIZE = 5000  # Size of the validation set.
 SEED = 66478  # Set to None for random seed.
 BATCH_SIZE = 64
-NUM_EPOCHS = 10
+NUM_EPOCHS = 1
 EVAL_BATCH_SIZE = 64
 EVAL_FREQUENCY = 100  # Number of steps between evaluations.
 
@@ -242,7 +242,7 @@ def main(_):
   batch = tf.Variable(0, dtype=data_type())
   # Decay once per epoch, using an exponential schedule starting at 0.01.
   learning_rate = tf.train.exponential_decay(
-      0.01,                # Base learning rate.
+      0.02,                # Base learning rate.
       batch * BATCH_SIZE,  # Current index into the dataset.
       train_size,          # Decay step.
       0.95,                # Decay rate.
@@ -280,6 +280,7 @@ def main(_):
         predictions[begin:, :] = batch_predictions[begin - size:, :]
     return predictions
 
+  print('Train size: %.1f' % train_size)
   # Create a local session to run the training.
   start_time = time.time()
   with tf.Session() as sess:
@@ -290,6 +291,7 @@ def main(_):
     for step in xrange(int(num_epochs * train_size) // BATCH_SIZE):
       # Compute the offset of the current minibatch in the data.
       # Note that we could use better randomization across epochs.
+      
       offset = (step * BATCH_SIZE) % (train_size - BATCH_SIZE)
       batch_data = train_data[offset:(offset + BATCH_SIZE), ...]
       batch_labels = train_labels[offset:(offset + BATCH_SIZE)]
